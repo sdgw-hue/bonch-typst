@@ -1,0 +1,205 @@
+#let stringify-by-func(it) = {
+  let func = it.func()
+  return if func in (parbreak, pagebreak, linebreak) {
+    "\n"
+  } else if func == smartquote {
+    if it.double { "\"" } else { "'" } // "
+  } else if it.fields() == (:) {
+    // a fieldless element is either specially represented (and caught earlier) or doesn't have text
+    ""
+  } else {
+    panic("Not sure how to handle type `" + repr(func) + "`")
+  }
+}
+
+#let plain-text(it) = {
+  return if type(it) == str {
+    it
+  } else if it == [ ] {
+    " "
+  } else if it.has("children") {
+    it.children.map(plain-text).join()
+  } else if it.has("body") {
+    plain-text(it.body)
+  } else if it.has("text") {
+    if type(it.text) == str {
+      it.text
+    } else {
+      plain-text(it.text)
+    }
+  } else {
+    // remove this to ignore all other non-text elements
+    stringify-by-func(it)
+  }
+}
+
+#let conf(
+  title: [],
+  faculty: [],
+  department: [],
+  subject: [],
+  specialty: [],
+  type: [],
+  students: (),
+  teachers: (),
+  doc,
+) = {
+  set document(title: title)
+  set page(
+    paper: "a4",
+    margin: (top: 2cm, right: 1.5cm, bottom: 2cm, left: 3cm),
+    numbering: none,
+  )
+
+  set text(
+    lang: "ru",
+    font: "Times New Roman",
+    size: 14pt,
+  )
+
+  set par(
+    leading: 0.75em,
+    spacing: 0.75em,
+    justify: true,
+    first-line-indent: (amount: 1.25cm, all: true)
+  )
+
+  set underline(
+    stroke: 0.5pt,
+    evade: false
+  )
+
+  set line(
+    stroke: 0.5pt,
+  )
+
+  show heading: set text(size: 14pt)
+  set heading(numbering: "1.1")
+  show heading.where(level: 1): set align(center)
+  show heading.where(level: 1): it => [#pagebreak()#upper(it)]
+  show heading.where(level: 2): pad.with(left: 1.25cm)
+  show heading.where(level: 3): pad.with(left: 1.25cm)
+  show heading.where(level: 3): set text(weight: "regular")
+
+  show outline.entry.where(level: 1): it => upper(it)
+
+  set figure.caption(separator: [ -- ])
+  show figure.where(kind: image): set figure(supplement: "Рисунок")
+  show figure.where(
+    kind: table
+  ): set figure.caption(position: top)
+  show figure: set block(breakable: true)
+
+  set list(indent: 1.25cm)
+  set enum(indent: 1.25cm)
+  // show list : set par(hanging-indent: -1.25cm)
+  // show enum : set par(hanging-indent: -1.25cm)
+
+
+  align(center, text(size: 12pt)[
+    *МИНИСТЕРСТВО ЦИФРОВОГО РАЗВИТИЯ, \
+    СВЯЗИ И МАССОВЫХ КОММУНИКАЦИЙ РОССИЙСКОЙ ФЕДЕРАЦИИ*
+
+    *ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ОБРАЗОВАТЕЛЬНОЕ \
+    УЧРЕЖДЕНИЕ ВЫСШЕГО ОБРАЗОВАНИЯ \
+    «САНКТ-ПЕТЕРБУРГСКИЙ ГОСУДАРСТВЕННЫЙ УНИВЕРСИТЕТ \
+    ТЕЛЕКОММУНИКАЦИЙ ИМ. ПРОФ. М.А. БОНЧ-БРУЕВИЧА» \
+    (СПбГУТ)*
+  ])
+
+  line(length: 100%)
+
+  align(center)[
+    Факультет: #faculty \
+    Кафедра: #department \
+    Дисциплина: #subject
+  ]
+
+  v(2em)
+
+  align(center, text(size: 16pt, weight: "bold")[#upper(type)])
+
+  v(3em)
+
+  align(center)[
+    #set par(spacing: 0.11em)
+    #let lines = plain-text(title).split("\n")
+    #for (i, l) in lines.enumerate(start: 1) {
+      text(l)
+      line(length: 100%)
+      if i < lines.len() { v(0.3em) }
+    }
+    #v(0.1em)
+    #text(size: 11pt)[_(тема отчета)_]
+  ]
+
+  v(1em)
+
+  block[Направление/специальность подготовки]
+  align(center)[
+    #set par(spacing: 0.11em)
+    #specialty \
+    #line(length: 100%)
+    #v(0.1em)
+    #text(size: 11pt)[_(код и наименование направления/специальности)_]
+  ]
+
+  v(2em)
+
+  let student(name) = {
+    grid(
+      columns: (1fr, 0.3fr),
+      column-gutter: 1em,
+      row-gutter: 0.11em,
+      block(name),
+      block[\ ],
+      line(length: 100%),
+      line(length: 100%),
+      align(center, text(size: 11pt)[#v(0.1em)_(Ф.И.О., № группы)_]),
+      align(center, text(size: 11pt)[#v(0.1em)_(подпись)_]),
+    )
+  }
+
+  let teacher(name) = {
+    grid(
+      columns: (1fr, 0.3fr),
+      column-gutter: 1em,
+      row-gutter: 0.11em,
+      block(name), block(),
+      line(length: 100%), line(length: 100%),
+      align(center, text(size: 11pt)[#v(0.1em)_(Должность, Ф.И.О. преподавателя)_]),
+      align(center, text(size: 11pt)[#v(0.1em)_(подпись)_]),
+    )
+  }
+
+  grid(
+    columns: (1fr, 1.1fr),
+    [],
+    [
+      #set par(spacing: 0.8em, first-line-indent: (amount: 0pt, all: false))
+      Студент:
+
+      #for s in students {
+        student(s)
+      }
+
+      #v(1.2em)
+
+      Преподаватель:
+      #for t in teachers {
+        teacher(t)
+      }
+    ],
+  )
+
+  place(center + bottom)[
+    Санкт-Петербург\
+    #datetime.today().display("[year]")
+  ]
+
+  set page(numbering: "1")
+  outline()
+
+  doc
+}
+
