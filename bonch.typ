@@ -36,35 +36,31 @@
 }
 
 #let cyrillic-numbering(pattern: "а)") = {
-  let alphabet = "абвгдежзиклмнопрстуфхцчшщэюя".split("")
-  let f(i) = {
-    let letter = alphabet.at(i)
-    let str = ""
-    for char in pattern {
-      if char == "а" {
-        str += letter
-      }
-      else if char == "А" {
-        str += upper(letter)
-      }
-      else {
-        str += char
-      }
+    let alphabet = "абвгдежзиклмнопрстуфхцчшщэюя".split("")
+    let f(i) = {
+        let letter = alphabet.at(i)
+        let str = ""
+        for char in pattern {
+            if char == "а" {
+                str += letter
+            } else if char == "А" {
+                str += upper(letter)
+            } else {
+                str += char
+            }
+        }
+        str
     }
-    str
-  }
-  f
+    f
 }
-
-
 
 #let conf(
     title: [],
-    faculty: [],
-    department: [],
-    subject: [],
-    specialty: [],
-    type: [],
+    faculty: "",
+    department: "",
+    subject: "",
+    speciality: "",
+    type: "",
     students: (),
     teachers: (),
     doc,
@@ -110,12 +106,12 @@
 
     show heading: set text(size: 14pt)
     set heading(numbering: "1.1")
-    // show heading: set block(stroke: 2pt)
-    show heading.where(level: 1): set align(center)
-    show heading.where(level: 1): it => [#pagebreak()#upper(it)]
     show heading.where(level: 3): set text(weight: "regular")
-
+    show heading.where(level: 1): set align(center)
+    show heading.where(level: 1): it => [#pagebreak()#it]
+    show heading.where(level: 1): it => upper(it)
     show outline.entry.where(level: 1): it => upper(it)
+    set outline(title: "СОДЕРЖАНИЕ", target: heading)
 
     set figure.caption(separator: [ -- ])
     show figure.where(kind: image): set figure(supplement: "Рисунок")
@@ -172,7 +168,7 @@
     block[Направление/специальность подготовки]
     align(center)[
         #set par(spacing: 0.11em)
-        #specialty \
+        #speciality \
         #line(length: 100%)
         #v(0.1em)
         #text(size: 11pt)[_(код и наименование направления/специальности)_]
