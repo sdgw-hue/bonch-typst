@@ -1,3 +1,5 @@
+#import "@preview/itemize:0.2.0" as el
+
 #let stringify-by-func(it) = {
     let func = it.func()
     return if func in (parbreak, pagebreak, linebreak) {
@@ -33,6 +35,29 @@
     }
 }
 
+#let cyrillic-numbering(pattern: "а)") = {
+  let alphabet = "абвгдежзиклмнопрстуфхцчшщэюя".split("")
+  let f(i) = {
+    let letter = alphabet.at(i)
+    let str = ""
+    for char in pattern {
+      if char == "а" {
+        str += letter
+      }
+      else if char == "А" {
+        str += upper(letter)
+      }
+      else {
+        str += char
+      }
+    }
+    str
+  }
+  f
+}
+
+
+
 #let conf(
     title: [],
     faculty: [],
@@ -53,18 +78,23 @@
 
     set text(
         lang: "ru",
-        font: "Times New Roman",
+        font: "FreeSerif",
         size: 14pt,
     )
 
-    show raw: set text(font: "Consolas")
-    show raw.where(block: true): set text(size: 10pt)
+    let LEADING = 0.75em
+
+    show raw: set text(font: "FreeMono")
     show raw.where(block: false): set text(size: 12pt)
-    show raw.where(block: true): set block(width: 100%)
+    show raw.where(block: true): set text(size: 12pt)
+    show raw: set block(
+        width: 100%,
+        inset: (y: LEADING),
+    )
 
     set par(
-        leading: 0.75em,
-        spacing: 0.75em,
+        leading: LEADING,
+        spacing: LEADING,
         justify: true,
         first-line-indent: (amount: 1.25cm, all: true),
     )
@@ -80,10 +110,9 @@
 
     show heading: set text(size: 14pt)
     set heading(numbering: "1.1")
+    // show heading: set block(stroke: 2pt)
     show heading.where(level: 1): set align(center)
     show heading.where(level: 1): it => [#pagebreak()#upper(it)]
-    show heading.where(level: 2): pad.with(left: 1.25cm)
-    show heading.where(level: 3): pad.with(left: 1.25cm)
     show heading.where(level: 3): set text(weight: "regular")
 
     show outline.entry.where(level: 1): it => upper(it)
@@ -95,10 +124,10 @@
 
     show figure: set block(breakable: true)
 
-    set list(indent: 1.25cm)
-    set enum(indent: 1.25cm)
-    // show list : set par(hanging-indent: -1.25cm)
-    // show enum : set par(hanging-indent: -1.25cm)
+    show math.equation: set block(inset: LEADING)
+
+    show: el.paragraph-enum-list.with(label-indent: 1.25cm, label-align: left)
+    set list(marker: [--])
 
 
     align(center, text(size: 12pt)[
