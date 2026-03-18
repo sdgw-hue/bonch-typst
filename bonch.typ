@@ -125,6 +125,12 @@
     show: el.paragraph-enum-list.with(label-indent: 1.25cm, label-align: left)
     set list(marker: [--])
 
+    set bibliography(
+        title: "СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ",
+        style: "gost-r-705-2008-numeric",
+        full: true,
+    )
+
 
     align(center, text(size: 12pt)[
         *МИНИСТЕРСТВО ЦИФРОВОГО РАЗВИТИЯ, \
