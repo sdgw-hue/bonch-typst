@@ -74,13 +74,19 @@
 
     set text(
         lang: "ru",
-        font: "FreeSerif",
+        font: (
+            "FreeSerif",
+            "Times New Roman",
+        ),
         size: 14pt,
     )
 
     let LEADING = 0.75em
 
-    show raw: set text(font: "FreeMono")
+    show raw: set text(font: (
+        "FreeMono",
+        "Courier New",
+    ))
     show raw.where(block: false): set text(size: 12pt)
     show raw.where(block: true): set text(size: 12pt)
     show raw: set block(
@@ -236,7 +242,6 @@
     ]
 
     set page(numbering: "1")
-    outline()
 
     doc
 }
