@@ -87,7 +87,7 @@
         "FreeMono",
         "Courier New",
     ))
-    show raw.where(block: false): set text(size: 12pt)
+    show raw.where(block: false): set text(size: 14pt)
     show raw.where(block: true): set text(size: 12pt)
     show raw: set block(
         width: 100%,
